@@ -14,7 +14,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: {python-version: "3.11"}
-      - run: pip install -r data-engine/generator/requirements.txt dbt-postgres==1.8.2
+      - run: pip install -r data-engine/generator/requirements.txt dbt-core==1.8.2 dbt-postgres==1.8.2
       - run: python data-engine/generator/generate.py
       - run: dbt run --profiles-dir .
         working-directory: data-engine/dbt-parc-assets
