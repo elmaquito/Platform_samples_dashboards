@@ -1,0 +1,12 @@
+parc_assets:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('PGHOST', 'localhost') }}"
+      port: "{{ env_var('PGPORT', '5432') | int }}"
+      user: "{{ env_var('PGUSER', 'parc') }}"
+      password: "{{ env_var('PGPASSWORD', 'parc') }}"
+      dbname: "{{ env_var('PGDATABASE', 'parc_assets') }}"
+      schema: public
+      threads: 4

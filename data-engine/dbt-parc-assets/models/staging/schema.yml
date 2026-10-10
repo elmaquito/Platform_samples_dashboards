@@ -1,0 +1,41 @@
+version: 2
+models:
+  - name: stg_users
+    columns:
+      - name: user_id
+        tests: [unique, not_null]
+      - name: email
+        tests: [unique, not_null]
+  - name: stg_hardware_models
+    columns:
+      - name: model_id
+        tests: [unique, not_null]
+  - name: stg_assets
+    columns:
+      - name: asset_id
+        tests: [unique, not_null]
+      - name: serial_number
+        tests: [unique, not_null]
+      - name: status
+        tests:
+          - accepted_values:
+              values: [in_use, in_stock, in_repair, retired]
+      - name: model_id
+        tests:
+          - relationships:
+              to: ref('stg_hardware_models')
+              field: model_id
+      - name: user_id
+        tests:
+          - relationships:
+              to: ref('stg_users')
+              field: user_id
+  - name: stg_software_installations
+    columns:
+      - name: installation_id
+        tests: [unique, not_null]
+      - name: asset_id
+        tests:
+          - relationships:
+              to: ref('stg_assets')
+              field: asset_id

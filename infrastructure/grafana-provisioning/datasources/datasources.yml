@@ -1,0 +1,15 @@
+apiVersion: 1
+datasources:
+  - name: ParcAssets
+    uid: parc-assets-pg
+    type: postgres
+    access: proxy
+    url: postgres:5432
+    user: parc
+    isDefault: true
+    jsonData:
+      database: parc_assets
+      sslmode: disable
+      postgresVersion: 1500
+    secureJsonData:
+      password: parc

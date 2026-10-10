@@ -1,0 +1,44 @@
+/// Placeholder: Power BI semantic model as code (TMDL). Connect to PostgreSQL localhost:5432 / parc_assets.
+model Model
+	culture: fr-FR
+
+table mart_assets_overview
+	column asset_id
+		dataType: int64
+		sourceColumn: asset_id
+	column status
+		dataType: string
+		sourceColumn: status
+	column category
+		dataType: string
+		sourceColumn: category
+	column unit_price
+		dataType: decimal
+		sourceColumn: unit_price
+	measure 'Total Assets' = COUNTROWS(mart_assets_overview)
+	measure 'Valeur du parc' = SUM(mart_assets_overview[unit_price])
+	partition mart_assets_overview = m
+		mode: import
+		source =
+			let
+				Source = PostgreSQL.Database("localhost:5432", "parc_assets"),
+				Data = Source{[Schema="marts", Item="mart_assets_overview"]}[Data]
+			in
+				Data
+
+table mart_software_licenses
+	column software_name
+		dataType: string
+		sourceColumn: software_name
+	column yearly_cost
+		dataType: decimal
+		sourceColumn: yearly_cost
+	measure 'Coût annuel licences' = SUM(mart_software_licenses[yearly_cost])
+	partition mart_software_licenses = m
+		mode: import
+		source =
+			let
+				Source = PostgreSQL.Database("localhost:5432", "parc_assets"),
+				Data = Source{[Schema="marts", Item="mart_software_licenses"]}[Data]
+			in
+				Data

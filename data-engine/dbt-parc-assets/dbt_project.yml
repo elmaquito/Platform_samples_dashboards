@@ -1,0 +1,13 @@
+name: parc_assets
+version: "1.0.0"
+config-version: 2
+profile: parc_assets
+model-paths: ["models"]
+models:
+  parc_assets:
+    staging:
+      +materialized: view
+      +schema: staging
+    marts:
+      +materialized: view
+      +schema: marts

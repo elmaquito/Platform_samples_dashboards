@@ -1,0 +1,9 @@
+version: 2
+sources:
+  - name: raw
+    schema: raw
+    tables:
+      - name: dim_users
+      - name: dim_hardware_models
+      - name: fact_assets
+      - name: fact_software_installations

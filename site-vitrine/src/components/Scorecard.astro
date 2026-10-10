@@ -1,0 +1,11 @@
+---
+const { tool, scores } = Astro.props;
+---
+<div class="rounded-lg border bg-white p-4 shadow">
+  <h3 class="text-lg font-bold mb-2">{tool}</h3>
+  <ul class="space-y-1">
+    {Object.entries(scores).map(([k, v]) => (
+      <li class="flex justify-between"><span>{k}</span><span class="font-mono">{v}/5</span></li>
+    ))}
+  </ul>
+</div>
