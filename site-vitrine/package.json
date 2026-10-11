@@ -1,0 +1,18 @@
+{
+  "name": "site-vitrine",
+  "type": "module",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@astrojs/react": "^7.0.1",
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "^7.3.8",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwindcss": "^4.3.3"
+  }
+}

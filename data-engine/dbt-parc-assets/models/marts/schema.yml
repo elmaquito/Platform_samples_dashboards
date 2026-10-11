@@ -1,0 +1,10 @@
+version: 2
+models:
+  - name: mart_assets_overview
+    columns:
+      - name: asset_id
+        tests: [unique, not_null]
+  - name: mart_software_licenses
+    columns:
+      - name: software_name
+        tests: [unique, not_null]

@@ -1,0 +1,7 @@
+apiVersion: 1
+providers:
+  - name: parc-assets
+    folder: Parc & Assets
+    type: file
+    options:
+      path: /var/lib/grafana/dashboards

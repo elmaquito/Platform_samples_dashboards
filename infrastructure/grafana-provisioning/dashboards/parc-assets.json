@@ -1,0 +1,181 @@
+{
+  "uid": "parc-assets",
+  "title": "Parc & Assets",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "1m",
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Assets total",
+      "type": "stat",
+      "datasource": {
+        "type": "postgres",
+        "uid": "parc-assets-pg"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 6,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "parc-assets-pg"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "SELECT count(*) AS assets FROM marts.mart_assets_overview"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Hors garantie",
+      "type": "stat",
+      "datasource": {
+        "type": "postgres",
+        "uid": "parc-assets-pg"
+      },
+      "gridPos": {
+        "x": 6,
+        "y": 0,
+        "w": 6,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "parc-assets-pg"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "SELECT count(*) AS out_of_warranty FROM marts.mart_assets_overview WHERE is_out_of_warranty"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Coût licences / mois",
+      "type": "stat",
+      "datasource": {
+        "type": "postgres",
+        "uid": "parc-assets-pg"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 6,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "parc-assets-pg"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "SELECT sum(monthly_cost) AS monthly_cost FROM marts.mart_software_licenses"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Assets par statut",
+      "type": "piechart",
+      "datasource": {
+        "type": "postgres",
+        "uid": "parc-assets-pg"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 8,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "parc-assets-pg"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "SELECT status, count(*) AS value FROM marts.mart_assets_overview GROUP BY status"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Assets par catégorie",
+      "type": "barchart",
+      "datasource": {
+        "type": "postgres",
+        "uid": "parc-assets-pg"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 8,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "parc-assets-pg"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "SELECT category, count(*) AS value FROM marts.mart_assets_overview GROUP BY category"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Coût annuel des licences",
+      "type": "table",
+      "datasource": {
+        "type": "postgres",
+        "uid": "parc-assets-pg"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 16,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "parc-assets-pg"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "SELECT software_name, installations, monthly_cost, yearly_cost FROM marts.mart_software_licenses ORDER BY yearly_cost DESC"
+        }
+      ]
+    }
+  ]
+}

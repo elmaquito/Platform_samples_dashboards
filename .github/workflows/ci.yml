@@ -1,0 +1,32 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  data:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env: {POSTGRES_USER: parc, POSTGRES_PASSWORD: parc, POSTGRES_DB: parc_assets}
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U parc" --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - run: pip install -r data-engine/generator/requirements.txt dbt-core==1.8.2 dbt-postgres==1.8.2
+      - run: python data-engine/generator/generate.py
+      - run: dbt run --profiles-dir .
+        working-directory: data-engine/dbt-parc-assets
+      - run: dbt test --profiles-dir .
+        working-directory: data-engine/dbt-parc-assets
+  site:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 22}
+      - run: npm install
+        working-directory: site-vitrine
+      - run: npm run build
+        working-directory: site-vitrine
