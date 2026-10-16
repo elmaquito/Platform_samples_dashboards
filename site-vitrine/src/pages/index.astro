@@ -1,38 +1,86 @@
 ---
 import BiIframe from '../components/BiIframe.astro';
-import Scorecard from '../components/Scorecard.astro';
-import Slider from '../components/Slider.jsx';
+import ComparisonTable from '../components/ComparisonTable.astro';
+import TabsNav from '../components/TabsNav.jsx';
 import '../styles.css';
 
-const slides = [
-  { title: 'Grafana', text: 'Provisioning 100% YAML/JSON : datasource et dashboard versionnés (IaC).' },
-  { title: 'Metabase', text: 'Configuration via scripts API, interface self-service pour les métiers.' },
-  { title: 'Power BI', text: 'Modèle sémantique as code (TMDL), rapports côté Desktop/Service.' },
-];
-const scorecards = [
-  { tool: 'Grafana', scores: { 'IaC / OaC': 5, 'Self-service': 3, 'Temps réel': 5 } },
-  { tool: 'Metabase', scores: { 'IaC / OaC': 3, 'Self-service': 5, 'Temps réel': 3 } },
-  { tool: 'Power BI', scores: { 'IaC / OaC': 3, 'Self-service': 4, 'Temps réel': 3 } },
+const criteria = [
+  {
+    name: 'IaC / OaC (Ops as Code)',
+    description: 'Capacité à versionner les dashboards, modèles et datasources via Git.',
+    grafana: 5,
+    metabase: 3,
+    powerbi: 3,
+  },
+  {
+    name: 'Self-service métier',
+    description: 'Facilité d’accès pour les utilisateurs non-techniques sans assistance IT.',
+    grafana: 3,
+    metabase: 5,
+    powerbi: 4,
+  },
+  {
+    name: 'Temps réel & Alerting',
+    description: 'Fréquence de rafraîchissement fine et notifications automatisées.',
+    grafana: 5,
+    metabase: 3,
+    powerbi: 3,
+  },
+  {
+    name: 'Modélisation sémantique',
+    description: 'Gestion des relations complexes, calculs DAX et dimensions d’analyse.',
+    grafana: 2,
+    metabase: 3,
+    powerbi: 5,
+  },
 ];
 ---
 <html lang="fr">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
-    <title>Vitrine BI — Parc &amp; Assets</title>
+    <title>Vitrine BI &amp; SI — Parc &amp; Assets</title>
   </head>
-  <body class="bg-gray-50 text-gray-900">
-    <main class="max-w-6xl mx-auto p-6 space-y-8">
-      <h1 class="text-3xl font-bold">Vitrine BI &amp; SI — Parc &amp; Assets</h1>
-      <p>Comparaison de Grafana, Metabase et Power BI sur la gestion du matériel et des licences.</p>
-      <Slider client:load slides={slides} />
-      <section class="grid md:grid-cols-3 gap-4">
-        <BiIframe title="Grafana" src="http://localhost:3000/d/parc-assets?kiosk" />
-        <BiIframe title="Metabase" src="http://localhost:3001" />
-        <BiIframe title="Power BI" placeholder />
+  <body class="bg-gray-50 text-gray-900 antialiased min-h-screen">
+    <!-- pb-24 adds safety margin against the Windows activation watermark in bottom right -->
+    <main class="max-w-7xl mx-auto p-6 md:p-8 space-y-8 pb-24">
+      <header class="space-y-2">
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-700">Benchmark Plateforme</span>
+          <span class="text-xs text-gray-500">Parc informatique &amp; Gouvernance SI</span>
+        </div>
+        <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Vitrine BI &amp; SI — Parc &amp; Assets</h1>
+        <p class="text-gray-600 max-w-3xl">
+          Comparaison en situation réelle de Grafana, Metabase et Power BI sur la gestion du matériel, des licences et des supervisions d'infrastructure.
+        </p>
+      </header>
+
+      {/* Tabs contextualizing the three scopes */}
+      <section>
+        <TabsNav client:load />
       </section>
-      <section class="grid md:grid-cols-3 gap-4">
-        {scorecards.map((c) => <Scorecard {...c} />)}
+
+      {/* 3 Columns Preview with unified heights and light themes */}
+      <section class="grid lg:grid-cols-3 gap-6 items-stretch">
+        <BiIframe
+          title="Grafana"
+          src="http://localhost:3000/d/parc-assets?kiosk&theme=light"
+          directUrl="http://localhost:3000/d/parc-assets"
+        />
+        <BiIframe
+          title="Metabase"
+          src="http://localhost:3001"
+          directUrl="http://localhost:3001"
+        />
+        <BiIframe
+          title="Power BI"
+          placeholder
+        />
+      </section>
+
+      {/* Unified 4-column comparison scorecard */}
+      <section>
+        <ComparisonTable criteria={criteria} />
       </section>
     </main>
   </body>

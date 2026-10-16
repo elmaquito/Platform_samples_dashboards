@@ -33,7 +33,7 @@
           "format": "table",
           "rawQuery": true,
           "editorMode": "code",
-          "rawSql": "SELECT count(*) AS assets FROM marts.mart_assets_overview"
+          "rawSql": "SELECT coalesce((SELECT count(*) FROM marts.mart_assets_overview), 0) AS assets"
         }
       ]
     },

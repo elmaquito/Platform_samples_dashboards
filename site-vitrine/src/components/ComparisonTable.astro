@@ -1,0 +1,90 @@
+---
+interface Props {
+  criteria: Array<{
+    name: string;
+    description: string;
+    grafana: number;
+    metabase: number;
+    powerbi: number;
+  }>;
+}
+
+const { criteria } = Astro.props;
+
+function getBadgeColor(score: number) {
+  if (score >= 4.5) return 'bg-emerald-100 text-emerald-800 border-emerald-300';
+  if (score >= 3.5) return 'bg-blue-100 text-blue-800 border-blue-300';
+  if (score >= 3.0) return 'bg-amber-100 text-amber-800 border-amber-300';
+  return 'bg-rose-100 text-rose-800 border-rose-300';
+}
+
+function getBarColor(score: number) {
+  if (score >= 4.5) return 'bg-emerald-500';
+  if (score >= 3.5) return 'bg-blue-500';
+  if (score >= 3.0) return 'bg-amber-500';
+  return 'bg-rose-500';
+}
+---
+
+<div class="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+  <div class="px-5 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+    <div>
+      <h2 class="text-base font-bold text-gray-900">Grille d'évaluation comparative</h2>
+      <p class="text-xs text-gray-500">Benchmark des solutions sur les axes techniques et métiers (sur 5 points)</p>
+    </div>
+    <div class="flex items-center gap-2 text-xs">
+      <span class="inline-flex items-center gap-1 font-medium text-emerald-700">
+        <span class="w-2 h-2 rounded-full bg-emerald-500"></span> 5/5 Excellent
+      </span>
+      <span class="inline-flex items-center gap-1 font-medium text-amber-700 ml-2">
+        <span class="w-2 h-2 rounded-full bg-amber-500"></span> 3/5 Adapté
+      </span>
+    </div>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="w-full text-left text-sm">
+      <thead class="bg-slate-50 border-b border-gray-200 text-xs uppercase text-gray-600 font-semibold tracking-wider">
+        <tr>
+          <th scope="col" class="py-3 px-5 w-2/5">Critère</th>
+          <th scope="col" class="py-3 px-4 w-1/5">Grafana</th>
+          <th scope="col" class="py-3 px-4 w-1/5">Metabase</th>
+          <th scope="col" class="py-3 px-4 w-1/5">Power BI</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100 text-gray-700">
+        {criteria.map((c) => (
+          <tr class="hover:bg-gray-50/80 transition-colors">
+            <td class="py-3.5 px-5">
+              <span class="font-semibold text-gray-900 block">{c.name}</span>
+              <span class="text-xs text-gray-500">{c.description}</span>
+            </td>
+            {[c.grafana, c.metabase, c.powerbi].map((score) => (
+              <td class="py-3.5 px-4 align-middle">
+                <div class="flex items-center gap-2">
+                  <span class={`inline-block px-2 py-0.5 text-xs font-bold rounded-md border ${getBadgeColor(score)}`}>
+                    {score}/5
+                  </span>
+                  <div class="w-16 bg-gray-200 rounded-full h-1.5 hidden sm:block overflow-hidden">
+                    <div
+                      class={`h-1.5 rounded-full ${getBarColor(score)}`}
+                      style={`width: ${(score / 5) * 100}%`}
+                    ></div>
+                  </div>
+                </div>
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+      <tfoot class="bg-gray-50/60 border-t border-gray-200 text-xs font-medium text-gray-600">
+        <tr>
+          <td class="py-3 px-5 font-semibold text-gray-900">Positionnement clé</td>
+          <td class="py-3 px-4 text-emerald-700 font-semibold">Observabilité & Monitoring live</td>
+          <td class="py-3 px-4 text-blue-700 font-semibold">Self-service & Requêtage no-code</td>
+          <td class="py-3 px-4 text-indigo-700 font-semibold">Gouvernance & Modélisation sémantique</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
