@@ -4,7 +4,7 @@ import random
 
 import pandas as pd
 from faker import Faker
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, inspect, text
 
 SEED = int(os.getenv("SEED", "42"))
 N_USERS = int(os.getenv("N_USERS", "200"))
@@ -94,13 +94,18 @@ def main():
     engine = create_engine(DATABASE_URL)
     with engine.begin() as conn:
         conn.execute(text("CREATE SCHEMA IF NOT EXISTS raw"))
+        inspector = inspect(conn)
         for name, df in [
             ("dim_users", users),
             ("dim_hardware_models", models),
             ("fact_assets", assets),
             ("fact_software_installations", installs),
         ]:
-            df.to_sql(name, conn, schema="raw", if_exists="replace", index=False)
+            if inspector.has_table(name, schema="raw"):
+                conn.execute(text(f'TRUNCATE TABLE raw."{name}" CASCADE'))
+                df.to_sql(name, conn, schema="raw", if_exists="append", index=False)
+            else:
+                df.to_sql(name, conn, schema="raw", if_exists="replace", index=False)
             print(f"raw.{name}: {len(df)} rows")
 
 

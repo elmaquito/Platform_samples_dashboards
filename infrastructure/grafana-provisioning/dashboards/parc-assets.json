@@ -1,14 +1,72 @@
 {
   "uid": "parc-assets",
-  "title": "Parc & Assets",
+  "title": "Vitrine BI & SI — Parc & Assets",
+  "tags": ["parc", "assets", "finops", "supervision"],
+  "timezone": "browser",
   "schemaVersion": 39,
-  "version": 1,
+  "version": 2,
   "refresh": "1m",
   "time": {
     "from": "now-6h",
     "to": "now"
   },
+  "templating": {
+    "list": [
+      {
+        "name": "department",
+        "label": "Département",
+        "type": "query",
+        "datasource": {
+          "type": "postgres",
+          "uid": "parc-assets-pg"
+        },
+        "definition": "SELECT DISTINCT coalesce(department, 'Non attribué') FROM marts.mart_assets_overview WHERE department IS NOT NULL AND department <> '' ORDER BY 1",
+        "query": "SELECT DISTINCT coalesce(department, 'Non attribué') FROM marts.mart_assets_overview WHERE department IS NOT NULL AND department <> '' ORDER BY 1",
+        "includeAll": true,
+        "allValue": "All",
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "All"
+        },
+        "multi": false,
+        "refresh": 1
+      },
+      {
+        "name": "status",
+        "label": "Statut",
+        "type": "query",
+        "datasource": {
+          "type": "postgres",
+          "uid": "parc-assets-pg"
+        },
+        "definition": "SELECT DISTINCT status FROM marts.mart_assets_overview ORDER BY 1",
+        "query": "SELECT DISTINCT status FROM marts.mart_assets_overview ORDER BY 1",
+        "includeAll": true,
+        "allValue": "All",
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "All"
+        },
+        "multi": false,
+        "refresh": 1
+      }
+    ]
+  },
   "panels": [
+    {
+      "id": 100,
+      "title": "🖥️ Thématique 1 : Parc & Assets (Matériel & Postes)",
+      "type": "row",
+      "collapsed": false,
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 1
+      }
+    },
     {
       "id": 1,
       "title": "Assets total",
@@ -19,9 +77,25 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 0,
+        "y": 1,
         "w": 6,
-        "h": 8
+        "h": 4
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": ["lastNotNull"]
+        },
+        "colorMode": "value",
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          }
+        }
       },
       "targets": [
         {
@@ -33,13 +107,13 @@
           "format": "table",
           "rawQuery": true,
           "editorMode": "code",
-          "rawSql": "SELECT coalesce((SELECT count(*) FROM marts.mart_assets_overview), 0) AS assets"
+          "rawSql": "SELECT count(*) AS assets FROM marts.mart_assets_overview WHERE ('$department' = 'All' OR department = '$department') AND ('$status' = 'All' OR status = '$status')"
         }
       ]
     },
     {
       "id": 2,
-      "title": "Hors garantie",
+      "title": "Postes en service",
       "type": "stat",
       "datasource": {
         "type": "postgres",
@@ -47,9 +121,25 @@
       },
       "gridPos": {
         "x": 6,
-        "y": 0,
+        "y": 1,
         "w": 6,
-        "h": 8
+        "h": 4
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": ["lastNotNull"]
+        },
+        "colorMode": "value",
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "green"
+          }
+        }
       },
       "targets": [
         {
@@ -61,13 +151,13 @@
           "format": "table",
           "rawQuery": true,
           "editorMode": "code",
-          "rawSql": "SELECT count(*) AS out_of_warranty FROM marts.mart_assets_overview WHERE is_out_of_warranty"
+          "rawSql": "SELECT count(*) AS in_use FROM marts.mart_assets_overview WHERE status = 'in_use' AND ('$department' = 'All' OR department = '$department')"
         }
       ]
     },
     {
       "id": 3,
-      "title": "Coût licences / mois",
+      "title": "En stock / réserve",
       "type": "stat",
       "datasource": {
         "type": "postgres",
@@ -75,9 +165,25 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 0,
+        "y": 1,
         "w": 6,
-        "h": 8
+        "h": 4
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": ["lastNotNull"]
+        },
+        "colorMode": "value",
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "orange"
+          }
+        }
       },
       "targets": [
         {
@@ -89,12 +195,56 @@
           "format": "table",
           "rawQuery": true,
           "editorMode": "code",
-          "rawSql": "SELECT sum(monthly_cost) AS monthly_cost FROM marts.mart_software_licenses"
+          "rawSql": "SELECT count(*) AS in_stock FROM marts.mart_assets_overview WHERE status = 'in_stock' AND ('$department' = 'All' OR department = '$department')"
         }
       ]
     },
     {
       "id": 4,
+      "title": "Hors garantie",
+      "type": "stat",
+      "datasource": {
+        "type": "postgres",
+        "uid": "parc-assets-pg"
+      },
+      "gridPos": {
+        "x": 18,
+        "y": 1,
+        "w": 6,
+        "h": 4
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": ["lastNotNull"]
+        },
+        "colorMode": "value",
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "red"
+          }
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "parc-assets-pg"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "SELECT count(*) AS out_of_warranty FROM marts.mart_assets_overview WHERE is_out_of_warranty AND ('$department' = 'All' OR department = '$department') AND ('$status' = 'All' OR status = '$status')"
+        }
+      ]
+    },
+    {
+      "id": 5,
       "title": "Assets par statut",
       "type": "piechart",
       "datasource": {
@@ -103,9 +253,16 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 8,
-        "w": 12,
+        "y": 5,
+        "w": 8,
         "h": 8
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "right"
+        },
+        "pieType": "donut"
       },
       "targets": [
         {
@@ -117,13 +274,260 @@
           "format": "table",
           "rawQuery": true,
           "editorMode": "code",
-          "rawSql": "SELECT status, count(*) AS value FROM marts.mart_assets_overview GROUP BY status"
+          "rawSql": "SELECT status, count(*) AS value FROM marts.mart_assets_overview WHERE ('$department' = 'All' OR department = '$department') GROUP BY status ORDER BY value DESC"
         }
       ]
     },
     {
-      "id": 5,
-      "title": "Assets par catégorie",
+      "id": 6,
+      "title": "Assets par catégorie de matériel",
+      "type": "barchart",
+      "datasource": {
+        "type": "postgres",
+        "uid": "parc-assets-pg"
+      },
+      "gridPos": {
+        "x": 8,
+        "y": 5,
+        "w": 8,
+        "h": 8
+      },
+      "options": {
+        "orientation": "horizontal",
+        "showValue": "always"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "parc-assets-pg"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "SELECT category, count(*) AS value FROM marts.mart_assets_overview WHERE ('$department' = 'All' OR department = '$department') AND ('$status' = 'All' OR status = '$status') GROUP BY category ORDER BY value DESC"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Assets par constructeur",
+      "type": "barchart",
+      "datasource": {
+        "type": "postgres",
+        "uid": "parc-assets-pg"
+      },
+      "gridPos": {
+        "x": 16,
+        "y": 5,
+        "w": 8,
+        "h": 8
+      },
+      "options": {
+        "orientation": "horizontal",
+        "showValue": "always"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "parc-assets-pg"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "SELECT manufacturer, count(*) AS value FROM marts.mart_assets_overview WHERE ('$department' = 'All' OR department = '$department') AND ('$status' = 'All' OR status = '$status') GROUP BY manufacturer ORDER BY value DESC"
+        }
+      ]
+    },
+    {
+      "id": 200,
+      "title": "💳 Thématique 2 : Licences & Coûts (FinOps & Logiciels)",
+      "type": "row",
+      "collapsed": false,
+      "gridPos": {
+        "x": 0,
+        "y": 13,
+        "w": 24,
+        "h": 1
+      }
+    },
+    {
+      "id": 8,
+      "title": "Coût licences / mois",
+      "type": "stat",
+      "datasource": {
+        "type": "postgres",
+        "uid": "parc-assets-pg"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 14,
+        "w": 8,
+        "h": 4
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": ["lastNotNull"]
+        },
+        "colorMode": "value",
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyEUR",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "purple"
+          }
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "parc-assets-pg"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "SELECT round(sum(monthly_cost)::numeric, 2) AS monthly_cost FROM marts.mart_software_licenses"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Budget annuel estimé licences",
+      "type": "stat",
+      "datasource": {
+        "type": "postgres",
+        "uid": "parc-assets-pg"
+      },
+      "gridPos": {
+        "x": 8,
+        "y": 14,
+        "w": 8,
+        "h": 4
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": ["lastNotNull"]
+        },
+        "colorMode": "value",
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyEUR",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "dark-blue"
+          }
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "parc-assets-pg"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "SELECT round(sum(yearly_cost)::numeric, 2) AS yearly_cost FROM marts.mart_software_licenses"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Installations logicielles totales",
+      "type": "stat",
+      "datasource": {
+        "type": "postgres",
+        "uid": "parc-assets-pg"
+      },
+      "gridPos": {
+        "x": 16,
+        "y": 14,
+        "w": 8,
+        "h": 4
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": ["lastNotNull"]
+        },
+        "colorMode": "value",
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "teal"
+          }
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "parc-assets-pg"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "SELECT sum(installations) AS total_installs FROM marts.mart_software_licenses"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "title": "Budget annuel par logiciel (€)",
+      "type": "barchart",
+      "datasource": {
+        "type": "postgres",
+        "uid": "parc-assets-pg"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 18,
+        "w": 12,
+        "h": 8
+      },
+      "options": {
+        "orientation": "horizontal",
+        "showValue": "always"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyEUR"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "parc-assets-pg"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "SELECT software_name, yearly_cost FROM marts.mart_software_licenses ORDER BY yearly_cost DESC"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "title": "Valeur du parc matériel par département (€)",
       "type": "barchart",
       "datasource": {
         "type": "postgres",
@@ -131,9 +535,18 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 8,
+        "y": 18,
         "w": 12,
         "h": 8
+      },
+      "options": {
+        "orientation": "horizontal",
+        "showValue": "always"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyEUR"
+        }
       },
       "targets": [
         {
@@ -145,13 +558,13 @@
           "format": "table",
           "rawQuery": true,
           "editorMode": "code",
-          "rawSql": "SELECT category, count(*) AS value FROM marts.mart_assets_overview GROUP BY category"
+          "rawSql": "SELECT coalesce(department, 'Non attribué') AS department, round(sum(unit_price)::numeric, 2) AS valeur FROM marts.mart_assets_overview WHERE ('$status' = 'All' OR status = '$status') GROUP BY department ORDER BY valeur DESC"
         }
       ]
     },
     {
-      "id": 6,
-      "title": "Coût annuel des licences",
+      "id": 13,
+      "title": "Coût annuel des licences (Détail)",
       "type": "table",
       "datasource": {
         "type": "postgres",
@@ -159,9 +572,69 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 16,
+        "y": 26,
         "w": 24,
-        "h": 8
+        "h": 7
+      },
+      "fieldConfig": {
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "monthly_cost"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyEUR"
+              },
+              {
+                "id": "displayName",
+                "value": "Coût mensuel (€)"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "yearly_cost"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyEUR"
+              },
+              {
+                "id": "displayName",
+                "value": "Coût annuel (€)"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "software_name"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Logiciel"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "installations"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Postes équipés"
+              }
+            ]
+          }
+        ]
       },
       "targets": [
         {
@@ -174,6 +647,186 @@
           "rawQuery": true,
           "editorMode": "code",
           "rawSql": "SELECT software_name, installations, monthly_cost, yearly_cost FROM marts.mart_software_licenses ORDER BY yearly_cost DESC"
+        }
+      ]
+    },
+    {
+      "id": 300,
+      "title": "🛡️ Thématique 3 : Supervision SI (Santé, Disponibilité & Obsolescence)",
+      "type": "row",
+      "collapsed": false,
+      "gridPos": {
+        "x": 0,
+        "y": 33,
+        "w": 24,
+        "h": 1
+      }
+    },
+    {
+      "id": 14,
+      "title": "Taux de disponibilité opérationnelle du parc",
+      "type": "gauge",
+      "datasource": {
+        "type": "postgres",
+        "uid": "parc-assets-pg"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 34,
+        "w": 8,
+        "h": 6
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "green",
+                "value": 85
+              }
+            ]
+          }
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "parc-assets-pg"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "SELECT coalesce(round((count(*) FILTER (WHERE status = 'in_use')::numeric / nullif(count(*) FILTER (WHERE status != 'retired'), 0)::numeric) * 100, 1), 0) AS taux_dispo FROM marts.mart_assets_overview WHERE ('$department' = 'All' OR department = '$department')"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "title": "Équipements en panne / réparation",
+      "type": "stat",
+      "datasource": {
+        "type": "postgres",
+        "uid": "parc-assets-pg"
+      },
+      "gridPos": {
+        "x": 8,
+        "y": 34,
+        "w": 8,
+        "h": 6
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": ["lastNotNull"]
+        },
+        "colorMode": "value",
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "orange"
+          }
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "parc-assets-pg"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "SELECT count(*) AS in_repair FROM marts.mart_assets_overview WHERE status = 'in_repair' AND ('$department' = 'All' OR department = '$department')"
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "title": "Postes en service hors garantie (Critique)",
+      "type": "stat",
+      "datasource": {
+        "type": "postgres",
+        "uid": "parc-assets-pg"
+      },
+      "gridPos": {
+        "x": 16,
+        "y": 34,
+        "w": 8,
+        "h": 6
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": ["lastNotNull"]
+        },
+        "colorMode": "value",
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "red"
+          }
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "parc-assets-pg"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "SELECT count(*) AS obsolete_in_use FROM marts.mart_assets_overview WHERE status = 'in_use' AND is_out_of_warranty AND ('$department' = 'All' OR department = '$department')"
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "title": "Répartition et santé du parc par Site / Ville",
+      "type": "table",
+      "datasource": {
+        "type": "postgres",
+        "uid": "parc-assets-pg"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 40,
+        "w": 24,
+        "h": 7
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "postgres",
+            "uid": "parc-assets-pg"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "editorMode": "code",
+          "rawSql": "SELECT coalesce(city, 'Site Central') AS \"Site / Ville\", count(*) AS \"Équipements Déployés\", count(*) FILTER (WHERE status = 'in_use') AS \"En Service\", count(*) FILTER (WHERE status = 'in_repair') AS \"En Panne/Réparation\", count(*) FILTER (WHERE is_out_of_warranty) AS \"Hors Garantie\" FROM marts.mart_assets_overview WHERE ('$department' = 'All' OR department = '$department') AND ('$status' = 'All' OR status = '$status') GROUP BY city ORDER BY \"Équipements Déployés\" DESC LIMIT 15"
         }
       ]
     }

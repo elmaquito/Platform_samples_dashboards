@@ -61,6 +61,7 @@ services:
       POSTGRES_USER: metabase
       POSTGRES_PASSWORD: metabase
       POSTGRES_DB: metabase
+    volumes: [metabase_data:/var/lib/postgresql/data]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U metabase"]
       interval: 5s
@@ -94,6 +95,7 @@ services:
     command: ["python", "init_metabase.py"]
     environment:
       MB_URL: http://metabase:3000
+      HOST_MB_URL: http://localhost:3001
     volumes: ["./metabase-init:/init"]
     depends_on:
       metabase: {condition: service_healthy}
@@ -102,3 +104,4 @@ services:
 
 volumes:
   pgdata:
+  metabase_data:

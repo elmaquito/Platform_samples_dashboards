@@ -2,7 +2,10 @@
 import BiIframe from '../components/BiIframe.astro';
 import ComparisonTable from '../components/ComparisonTable.astro';
 import TabsNav from '../components/TabsNav.jsx';
+import metabaseConfig from '../metabase_config.json';
 import '../styles.css';
+
+const metabaseSrc = metabaseConfig?.public_url || 'http://localhost:3001';
 
 const criteria = [
   {
@@ -69,7 +72,7 @@ const criteria = [
         />
         <BiIframe
           title="Metabase"
-          src="http://localhost:3001"
+          src={metabaseSrc}
           directUrl="http://localhost:3001"
         />
         <BiIframe
